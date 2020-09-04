@@ -1,12 +1,16 @@
-import Vue from 'vue'
-import App from './App.vue'
-import router from './router'
-import store from './store'
+import Vue from "vue";
+import App from "./App.vue";
+import "./plugins/element";
+import store from "./plugins/store";
+import router from "./plugins/router";
+import { RestifyConfig } from "vue-restify";
 
-Vue.config.productionTip = false
+RestifyConfig.set('origin', 'http://localhost:8000');
+
+Vue.config.productionTip = false;
 
 new Vue({
-  router,
   store,
+  router,
   render: h => h(App)
-}).$mount('#app')
+}).$mount('#app');
