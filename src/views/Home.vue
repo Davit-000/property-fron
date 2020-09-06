@@ -24,8 +24,11 @@
       <el-upload
         action="http://localhost:8000/api/properties"
         :on-success="applyProperties"
+        :before-upload="() => this.loading = true"
         :show-file-list="false"
+        :headers="{Accept: 'application/json'}"
         name="csv_file"
+        accept="csv"
       >
         <el-button icon="el-icon-bottom" type="primary">Import</el-button>
       </el-upload>
@@ -146,6 +149,7 @@ export default {
         .finally(() => this.loading = false);
     },
     applyProperties(properties) {
+      this.loading = false;
       this.properties = this.properties.concat(properties);
     },
     applyFilters() {
