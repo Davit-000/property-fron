@@ -8,9 +8,12 @@
 <template>
   <el-card>
     <div slot="header" class="property-heading">
+      <el-button @click="drawer = true" type="primary" round>Filter</el-button>
+
       <div class="w-50">
         <el-input
           v-model="property.filters.search"
+          @input="applyFilters"
           placeholder="Type to search"
           clearable
         />
@@ -18,35 +21,68 @@
 
       <div class="spacer"></div>
 
-      <el-button @click="drawer = true" type="primary" round>Filters</el-button>
+      <el-upload
+        action="http://localhost:8000/api/properties"
+        :on-success="applyProperties"
+        :show-file-list="false"
+        name="csv_file"
+      >
+        <el-button icon="el-icon-bottom" type="primary">Import</el-button>
+      </el-upload>
     </div>
 
     <el-drawer
-      title="I am the title"
       :visible.sync="drawer"
-      :before-close="cancelFilters"
+      :before-close="() => this.drawer = false"
       direction="ltr"
+      style="width: 1100px"
     >
       <el-form ref="form" label-width="100px" label-position="top" style="padding: 15px">
+        <el-row type="flex" align="center">
+          <el-col :span="11">
+            <el-form-item label="Price from"  prop="price_from" size="small">
+              <el-input-number
+                v-model.number="property.filters.price_from"
+                placeholder="Price form"
+                :min="1"
+              />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="2"></el-col>
+
+          <el-col :span="11">
+            <el-form-item label="Price from" prop="price_to" size="small">
+              <el-input-number
+                v-model.number="property.filters.price_to"
+                placeholder="Price to"
+                :min="1"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item
           v-for="key in property.filterKeys"
           :label="key.replace('_', ' ')"
           :key="`filter-${key}`"
+          size="small"
         >
-          <el-input
-            v-model="property.filters[key]"
+          <el-input-number
+            v-model.number="property.filters[key]"
             :placeholder="key.replace('_', ' ')"
+            :value="property.filters[key]"
+            :min="1"
           />
         </el-form-item>
 
         <el-form-item>
           <el-button type="primary" @click="applyFilters">Apply</el-button>
-          <el-button @click="cancelFilters">Cancel</el-button>
+          <el-button @click="resetFilters">Reset</el-button>
         </el-form-item>
       </el-form>
     </el-drawer>
 
-    <el-table :data="properties" height="calc(100vh - 160px)" style="width: 100%">
+    <el-table v-loading="loading" :data="properties" height="calc(100vh - 160px)" style="width: 100%">
       <el-table-column
         v-for="header in property.headers"
         :label="header.toUpperCase()"
@@ -109,15 +145,24 @@ export default {
         .catch(err => console.log(err))
         .finally(() => this.loading = false);
     },
+    applyProperties(properties) {
+      this.properties = this.properties.concat(properties);
+    },
     applyFilters() {
       this.getProperties();
-    },
-    cancelFilters() {
+      this.$router.replace({name: 'Home', query: this.property.filters});
       this.drawer = false;
+    },
+    resetFilters() {
+      this.$router.replace({name: 'Home', query: {}});
       this.property.resetFilters();
+      this.drawer = false;
+      this.getProperties();
     }
   },
   created() {
+    Object.assign(this.property.filters, this.$route.query);
+
     this.getProperties();
   }
 }

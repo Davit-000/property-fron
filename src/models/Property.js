@@ -9,11 +9,11 @@ export class Property extends Restify {
   static fields = {
     id: null,
     name: '',
-    price: null,
-    garages: null,
-    storeys: null,
-    bedrooms: null,
-    bathrooms: null,
+    price: undefined,
+    garages: undefined,
+    storeys: undefined,
+    bedrooms: undefined,
+    bathrooms: undefined,
   };
 
   formdata = true;
@@ -26,8 +26,8 @@ export class Property extends Restify {
 
     this.filters = Object.assign({
       search: '',
-      price_to: null,
-      price_from: null,
+      price_to: undefined,
+      price_from: undefined,
     }, omit(Property.fields, ['name', 'price']));
   }
 
@@ -36,14 +36,14 @@ export class Property extends Restify {
   }
 
   get filterKeys() {
-    return Object.keys(omit(this.filters, ['id','search']))
+    return Object.keys(omit(this.filters, ['id','search', 'price_to', 'price_from']))
   }
 
   resetFilters() {
     this.filters = Object.assign({
       search: '',
-      price_to: null,
-      price_from: null,
+      price_to: undefined,
+      price_from: undefined,
     }, omit(Property.fields, ['name', 'price']));
   }
 }
